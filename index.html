@@ -12,13 +12,38 @@
 
   <!-- Подключение манифеста -->
   <link rel="manifest" href="/manifest.json">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    #downloadButton {
+      display: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease;
+    }
+
+    #downloadButton:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
   <h1>Пример прогрессивного веб-приложения (PWA)</h1>
   <p>Нажмите кнопку ниже, чтобы скачать и установить это приложение на главный экран.</p>
   
   <!-- Кнопка для добавления на главный экран -->
-  <button id="downloadButton" style="display:none;">Скачать приложение</button>
+  <button id="downloadButton">Скачать приложение</button>
 
   <script>
     let deferredPrompt;
@@ -30,7 +55,7 @@
       // Сохраняем событие для дальнейшего использования
       deferredPrompt = e;
       // Показываем кнопку для скачивания
-      document.getElementById('downloadButton').style.display = 'block';
+      document.getElementById('downloadButton').style.display = 'inline-block';
     });
 
     // При нажатии на кнопку показываем диалоговое окно для установки
