@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" href="icons/icon-192x192.png">
+  <title>Пример PWA</title>
+
+  <!-- Подключение манифеста -->
+  <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+  <h1>Пример прогрессивного веб-приложения (PWA)</h1>
+  <p>Нажмите кнопку ниже, чтобы скачать и установить это приложение на главный экран.</p>
+  
+  <!-- Кнопка для добавления на главный экран -->
+  <button id="downloadButton" style="display:none;">Скачать приложение</button>
+
+  <script>
+    let deferredPrompt;
+
+    // Слушаем событие beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Предотвращаем стандартное поведение
+      e.preventDefault();
+      // Сохраняем событие для дальнейшего использования
+      deferredPrompt = e;
+      // Показываем кнопку для скачивания
+      document.getElementById('downloadButton').style.display = 'block';
+    });
+
+    // При нажатии на кнопку показываем диалоговое окно для установки
+    document.getElementById('downloadButton').addEventListener('click', () => {
+      if (deferredPrompt) {
+        // Показываем диалоговое окно для установки приложения
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('Пользователь установил приложение');
+          } else {
+            console.log('Пользователь отклонил установку');
+          }
+          // Сбросим событие после использования
+          deferredPrompt = null;
+        });
+      }
+    });
+  </script>
+</body>
+</html>
