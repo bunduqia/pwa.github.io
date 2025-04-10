@@ -21,11 +21,10 @@
     }
 
     #downloadButton {
-      display: none; /* Кнопка скрыта по умолчанию */
       padding: 15px 30px;
       font-size: 18px;
       background-color: #4CAF50;
-      color: white;
+      color: #ff0000;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -54,25 +53,23 @@
       e.preventDefault();
       // Сохраняем событие для дальнейшего использования
       deferredPrompt = e;
-      // Показываем кнопку для скачивания
-      document.getElementById('downloadButton').style.display = 'inline-block';
-    });
 
-    // При нажатии на кнопку показываем диалоговое окно для установки
-    document.getElementById('downloadButton').addEventListener('click', () => {
-      if (deferredPrompt) {
-        // Показываем диалоговое окно для установки приложения
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('Пользователь установил приложение');
-          } else {
-            console.log('Пользователь отклонил установку');
-          }
-          // Сбросим событие после использования
-          deferredPrompt = null;
-        });
-      }
+      // При нажатии на кнопку показываем диалоговое окно для установки
+      document.getElementById('downloadButton').addEventListener('click', () => {
+        if (deferredPrompt) {
+          // Показываем диалоговое окно для установки приложения
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('Пользователь установил приложение');
+            } else {
+              console.log('Пользователь отклонил установку');
+            }
+            // Сбросим событие после использования
+            deferredPrompt = null;
+          });
+        }
+      });
     });
   </script>
 </body>
