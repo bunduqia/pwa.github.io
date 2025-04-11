@@ -1,106 +1,158 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Скачать PWA</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4CAF50">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-      flex-direction: column;
-    }
-
-    h1 {
-      font-size: 2em;
-      color: #333;
-    }
-
-    #downloadBtn {
-      margin-top: 20px;
-      font-size: 18px;
-      padding: 12px 28px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-
-    #downloadBtn:hover {
-      background-color: #43a047;
-    }
-
-    #downloadBtn:disabled {
-      background-color: #aaa;
-      cursor: not-allowed;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <title>Установка PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        #installButton {
+            padding: 12px 24px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        #installButton:hover {
+            background-color: #45a049;
+        }
+        
+        #installButton:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        #installModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .install-option {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .install-option:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
 </head>
 <body>
-  <h1>Скачать приложение</h1>
-  <button id="downloadBtn" disabled>Установить</button>
-
-  <script>
-    let deferredPrompt;
-    const downloadBtn = document.getElementById('downloadBtn');
-
-    // Разрешение на уведомления
-    if (Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-
-    // Сохраняем событие установки
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      downloadBtn.disabled = false;
-
-      // Показываем нативное уведомление
-      if (Notification.permission === 'granted') {
-        const notif = new Notification("Установить приложение?", {
-          body: "Нажмите на уведомление или кнопку ниже, чтобы скачать PWA.",
-          icon: "icon-192x192.png",
-          badge: "icon-192x192.png",
-          tag: "pwa-install"
+    <h1>Мое PWA Приложение</h1>
+    <p>Нажмите кнопку ниже, чтобы установить это приложение на ваше устройство</p>
+    
+    <button id="installButton" disabled>Установить приложение</button>
+    
+    <div id="installModal">
+        <div class="modal-content">
+            <h2>Выберите способ установки</h2>
+            <div class="install-option" id="installDesktop">Установить как приложение</div>
+            <div class="install-option" id="installShortcut">Создать ярлык на рабочем столе</div>
+            <div class="install-option" id="cancelInstall">Отмена</div>
+        </div>
+    </div>
+    
+    <script>
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+        const installModal = document.getElementById('installModal');
+        const installDesktop = document.getElementById('installDesktop');
+        const installShortcut = document.getElementById('installShortcut');
+        const cancelInstall = document.getElementById('cancelInstall');
+        
+        // Слушаем событие beforeinstallprompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.disabled = false;
         });
-
-        notif.onclick = async (event) => {
-          event.preventDefault();
-          window.focus();
-          deferredPrompt.prompt();
-          const choice = await deferredPrompt.userChoice;
-          console.log("User choice:", choice.outcome);
-          deferredPrompt = null;
-          downloadBtn.disabled = true;
-        };
-      }
-    });
-
-    // Кнопка "Установить"
-    downloadBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const result = await deferredPrompt.userChoice;
-      console.log("Выбор пользователя:", result.outcome);
-      deferredPrompt = null;
-      downloadBtn.disabled = true;
-    });
-
-    // Успешная установка
-    window.addEventListener('appinstalled', () => {
-      console.log("Приложение установлено");
-    });
-  </script>
+        
+        // Обработчик нажатия на кнопку установки
+        installButton.addEventListener('click', () => {
+            if (!deferredPrompt) return;
+            
+            // Показываем наш кастомный модальный диалог
+            installModal.style.display = 'flex';
+        });
+        
+        // Обработчики для модального окна
+        installDesktop.addEventListener('click', async () => {
+            installModal.style.display = 'none';
+            
+            // Показываем стандартное диалоговое окно установки
+            deferredPrompt.prompt();
+            
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to the install prompt: ${outcome}`);
+            
+            deferredPrompt = null;
+            installButton.disabled = true;
+        });
+        
+        installShortcut.addEventListener('click', () => {
+            installModal.style.display = 'none';
+            
+            // Попытка создать ярлык (работает не во всех браузерах)
+            if (navigator.registerProtocolHandler) {
+                try {
+                    navigator.registerProtocolHandler(
+                        'web+myapp',
+                        window.location.href,
+                        'My PWA App'
+                    );
+                    alert('Ярлык создан успешно!');
+                } catch (e) {
+                    alert('Не удалось создать ярлык: ' + e.message);
+                }
+            } else {
+                alert('Ваш браузер не поддерживает создание ярлыков таким способом');
+            }
+        });
+        
+        cancelInstall.addEventListener('click', () => {
+            installModal.style.display = 'none';
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            installButton.disabled = true;
+        });
+    </script>
 </body>
 </html>
