@@ -1,90 +1,74 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#ffffff">
-    <title>Установка PWA</title>
-    <link rel="manifest" href="manifest.json">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        #installButton {
-            padding: 12px 24px;
-            font-size: 18px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        
-        #installButton:hover {
-            background-color: #45a049;
-        }
-        
-        #installButton:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Установка PWA</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
-    <h1>Мое PWA Приложение</h1>
-    <p>Нажмите кнопку ниже, чтобы установить это приложение на ваше устройство</p>
-    
-    <button id="installButton" disabled>Установить приложение</button>
-    
-    <script>
-        let deferredPrompt;
-        const installButton = document.getElementById('installButton');
-        
-        // Слушаем событие beforeinstallprompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Предотвращаем автоматическое отображение подсказки
-            e.preventDefault();
-            // Сохраняем событие для использования позже
-            deferredPrompt = e;
-            // Активируем кнопку
-            installButton.disabled = false;
-        });
-        
-        // Обработчик нажатия на кнопку установки
-        installButton.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            
-            // Показываем подсказку установки
-            deferredPrompt.prompt();
-            
-            // Ждем, пока пользователь решит установить PWA
-            const { outcome } = await deferredPrompt.userChoice;
-            
-            // Можно добавить аналитику или логирование
-            console.log(`User response to the install prompt: ${outcome}`);
-            
-            // После показа подсказки, больше не можем её использовать
-            deferredPrompt = null;
-            
-            // Скрываем кнопку
-            installButton.disabled = true;
-        });
-        
-        // Слушаем событие успешной установки
-        window.addEventListener('appinstalled', () => {
-            console.log('PWA was installed');
-            installButton.disabled = true;
-        });
-    </script>
+  <h1>Мое PWA Приложение</h1>
+  <p>Нажмите кнопку ниже, чтобы выбрать место установки и установить PWA</p>
+  <button id="installButton" disabled>Выбрать папку и установить</button>
+
+  <script>
+    let deferredPrompt;
+    const installButton = document.getElementById('installButton');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installButton.disabled = false;
+    });
+
+    installButton.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+
+      // Показываем окно выбора папки
+      try {
+        const dirHandle = await window.showDirectoryPicker();
+        console.log('Папка выбрана:', dirHandle.name);
+
+        // Показать окно установки PWA
+        deferredPrompt.prompt();
+
+        const choiceResult = await deferredPrompt.userChoice;
+        console.log('Результат установки:', choiceResult.outcome);
+
+        deferredPrompt = null;
+        installButton.disabled = true;
+
+        alert('Приложение установлено (или отклонено)');
+      } catch (err) {
+        console.warn('Ошибка или отказ от выбора папки:', err);
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA успешно установлено');
+    });
+  </script>
 </body>
 </html>
