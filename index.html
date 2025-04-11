@@ -123,6 +123,27 @@
             deferredPrompt = null;
             installButton.disabled = true;
         });
+        
+        installShortcut.addEventListener('click', () => {
+            installModal.style.display = 'none';
+            
+            // Попытка создать ярлык (работает не во всех браузерах)
+            if (navigator.registerProtocolHandler) {
+                try {
+                    navigator.registerProtocolHandler(
+                        'web+myapp',
+                        window.location.href,
+                        'My PWA App'
+                    );
+                    alert('Ярлык создан успешно!');
+                } catch (e) {
+                    alert('Не удалось создать ярлык: ' + e.message);
+                }
+            } else {
+                alert('Ваш браузер не поддерживает создание ярлыков таким способом');
+            }
+        });
+        
         cancelInstall.addEventListener('click', () => {
             installModal.style.display = 'none';
         });
