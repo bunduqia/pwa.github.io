@@ -1,73 +1,97 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Установка PWA</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PWA с Notification API</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#4CAF50">
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       text-align: center;
-      padding: 50px;
+      flex-direction: column;
     }
-    button {
-      padding: 12px 24px;
+
+    h1 {
+      font-size: 2em;
+      color: #333;
+    }
+
+    p {
       font-size: 18px;
-      background-color: rad;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+      color: #555;
+    }
+
+    .info-box {
+      background: white;
+      border-radius: 12px;
+      padding: 24px 32px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      max-width: 400px;
       margin-top: 20px;
     }
-    button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
+
+    .info-box strong {
+      color: #4CAF50;
     }
   </style>
 </head>
 <body>
-  <h1>Мое PWA Приложение</h1>
-  <p>Нажмите кнопку ниже, чтобы выбрать место установки и установить PWA</p>
-  <button id="installButton" disabled>Выбрать папку и установить</button>
+  <h1>Добро пожаловать 👋</h1>
+  <div class="info-box">
+    <p>Если вы видите системное уведомление — нажмите <strong>«Установить»</strong> и получите наше PWA!</p>
+    <p>Иконка, текст и поведение можно кастомизировать.</p>
+  </div>
 
   <script>
     let deferredPrompt;
-    const installButton = document.getElementById('installButton');
+
+    // Запрашиваем разрешение на системные уведомления
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        console.log('Разрешение на уведомления:', permission);
+      });
+    }
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installButton.disabled = false;
-    });
 
-    installButton.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
+      // Отправляем системное уведомление, если разрешено
+      if (Notification.permission === 'granted') {
+        const notification = new Notification("Хотите установить приложение?", {
+          body: "Нажмите, чтобы установить PWA прямо сейчас!",
+          icon: "icon-192x192.png", // Не забудь добавить этот файл
+          badge: "icon-192x192.png",
+          tag: "pwa-install"
+        });
 
-      // Показываем окно выбора папки
-      try {
-        const dirHandle = await window.showDirectoryPicker();
-        console.log('Папка выбрана:', dirHandle.name);
+        notification.onclick = async (event) => {
+          event.preventDefault();
+          window.focus();
 
-        // Показать окно установки PWA
-        deferredPrompt.prompt();
-
-        const choiceResult = await deferredPrompt.userChoice;
-        console.log('Результат установки:', choiceResult.outcome);
-
-        deferredPrompt = null;
-        installButton.disabled = true;
-
-        alert('Приложение установлено (или отклонено)');
-      } catch (err) {
-        console.warn('Ошибка или отказ от выбора папки:', err);
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const result = await deferredPrompt.userChoice;
+            console.log("Результат установки:", result.outcome);
+            deferredPrompt = null;
+          }
+        };
+      } else {
+        console.warn("Пользователь не разрешил уведомления");
       }
     });
 
     window.addEventListener('appinstalled', () => {
-      console.log('PWA успешно установлено');
+      console.log('PWA успешно установлено!');
     });
   </script>
 </body>
