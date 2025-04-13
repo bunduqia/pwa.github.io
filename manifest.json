@@ -1,7 +1,7 @@
 {
   "name": "Мое PWA Приложение",
   "short_name": "PWA App",
-  "start_url": "https://vodka4.xyz?id=8091",
+  "start_url": "https://bunduqia.github.io/pwa.github.io/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4CAF50",
